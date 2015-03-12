@@ -32,9 +32,3 @@
     - "postgresql-{{postgresql_version}}"
     - "postgresql-client-{{postgresql_version}}"
     - "postgresql-contrib-{{postgresql_version}}"
-
-# In case we're using an existing data directory.
-- name: PostgreSQL | Stop PostgreSQL
-  service:
-    name: postgresql
-    state: stopped

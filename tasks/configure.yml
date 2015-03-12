@@ -1,5 +1,10 @@
 # file: postgresql/tasks/configure.yml
 
+- name: PostgreSQL | Stop PostgreSQL
+  service:
+    name: postgresql
+    state: stopped
+
 - name: PostgreSQL | Make sure the postgres data directory exists
   file:
     path: "{{postgresql_data_directory}}"
