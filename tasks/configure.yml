@@ -1,10 +1,5 @@
 # file: postgresql/tasks/configure.yml
 
-- name: PostgreSQL | Stop PostgreSQL
-  service:
-    name: postgresql
-    state: stopped
-
 - name: PostgreSQL | Make sure the postgres data directory exists
   file:
     path: "{{postgresql_data_directory}}"
@@ -52,7 +47,8 @@
     group: "{{ postgresql_service_group }}"
     mode: 0755
 
-- name: PostgreSQL | Start PostgreSQL
+- name: PostgreSQL | Restart PostgreSQL
   service:
     name: postgresql
-    state: started
+    state: restarted
+  when: postgresql_configuration_pt1.changed or postgresql_configuration_pt2.changed
