@@ -5,6 +5,11 @@
     name: postgresql
     state: started
 
+# facepalm
+- name: PostgreSQL | Wait for the server
+  pause:
+    seconds: 5
+
 - name: PostgreSQL | Make sure the PostgreSQL users are present
   postgresql_user:
     name: "{{item.name}}"
