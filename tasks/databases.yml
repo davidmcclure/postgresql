@@ -8,7 +8,7 @@
 - name: PostgreSQL | Make sure the PostgreSQL databases are present
   postgresql_db:
     name: "{{item.name}}"
-    owner: "{{postgresql_database_owner}}"
+    owner: "{{ item.owner | default(postgresql_database_owner) }}"
     encoding: "{{postgresql_encoding}}"
     lc_collate: "{{postgresql_locale}}"
     lc_ctype: "{{postgresql_locale}}"
@@ -20,6 +20,16 @@
   sudo_user: "{{postgresql_admin_user}}"
   with_items: postgresql_databases
   when: postgresql_databases|length > 0
+
+- name: PostgreSQL | Add extensions to the databases
+  shell: "psql {{item.0.db}} --username {{postgresql_admin_user}} -c 'CREATE EXTENSION IF NOT EXISTS {{ item.1 }};'"
+  sudo: yes
+  sudo_user: "{{postgresql_admin_user}}"
+  with_subelements:
+    - postgresql_database_extensions
+    - extensions
+  register: result
+  changed_when: "'NOTICE' not in result.stderr"
 
 - name: PostgreSQL | Add hstore to the databases with the requirement
   sudo: yes
@@ -48,7 +58,7 @@
   with_items: postgresql_databases
   when: item.gis is defined and item.gis
 
-- name: postgresql | add cube to the database with the requirement
+- name: PostgreSQL | add cube to the database with the requirement
   sudo: yes
   sudo_user: "{{ postgresql_service_user }}"
   shell: "{{ postgresql_bin_directory}}/psql {{item.name}} --username {{ postgresql_admin_user }} -c 'create extension if not exists cube;'"
@@ -62,7 +72,7 @@
   with_items: postgresql_databases
   when: item.plpgsql is defined and item.plpgsql
 
-- name: postgresql | add earthdistance to the database with the requirement
+- name: PostgreSQL | add earthdistance to the database with the requirement
   sudo: yes
   sudo_user: "{{ postgresql_service_user }}"
   shell: "{{ postgresql_bin_directory}}/psql {{item.name}} --username {{ postgresql_admin_user }} -c 'create extension if not exists earthdistance;'"
